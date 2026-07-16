@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import PhotoSwipeLightbox from 'photoswipe/lightbox'
 import 'photoswipe/style.css'
 import { portfolio } from './data'
+import valdiviaFlag from './assets/valdivia-flag.svg'
 
 const instagramUrl = 'https://www.instagram.com/simbiontejoyas/'
 
@@ -88,6 +89,7 @@ function App() {
 
       <footer className="site-footer">
         <span>© {new Date().getFullYear()} Simbionte Joyas</span>
+        <span className="footer-credit">De Valdivia <img src={valdiviaFlag} alt="Bandera de Valdivia" /> con <span aria-label="amor" role="img">❤️</span> por <a href="https://diegui.dev" target="_blank" rel="noreferrer">diegui.dev</a></span>
         <a href="#inicio">Volver arriba ↑</a>
       </footer>
     </>
