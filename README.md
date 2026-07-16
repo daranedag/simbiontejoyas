@@ -23,4 +23,9 @@ pnpm build
 
 ## Publicación
 
-El workflow `.github/workflows/deploy.yml` publica cada envío a `main` en GitHub Pages. En el repositorio de GitHub, activa **Settings → Pages → Build and deployment → GitHub Actions** una vez.
+El workflow `.github/workflows/deploy.yml` publica cada envío a `main` en GitHub Pages usando Node 24.
+
+Para el primer despliegue, elige una de estas alternativas:
+
+- Activa **Settings → Pages → Build and deployment → GitHub Actions** una vez.
+- O crea el secreto `PAGES_DEPLOY_TOKEN` con un fine-grained personal access token limitado a este repositorio y con permisos **Administration: write** y **Pages: write**. El workflow habilitará Pages automáticamente.
