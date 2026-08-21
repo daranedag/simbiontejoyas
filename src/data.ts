@@ -1,13 +1,24 @@
-import heroImage from '../inspiracion/Fotitos Clau-4.jpg'
-import lichenRed from '../inspiracion/Fotos ClauDoñas-6.jpg'
-import lichenGreen from '../inspiracion/Fotos ClauDoñas-3.jpg'
-import lichenYellow from '../inspiracion/Fotitos Clau-1 (1).jpg'
-import lichenTexture from '../inspiracion/Fotitos Clau-2 (1) (1).jpg'
-import lichenLandscape from '../inspiracion/Fotitos Clau-3 (1) (1).jpg'
-import silverPiece from '../inspiracion/DSC_7682-Enhanced-NR.jpg'
-import aboutPhotoOne from './assets/sobreMi_1.png'
-import aboutPhotoTwo from './assets/sobreMi_2.png'
-import aboutPhotoThree from './assets/sobreMi_3.png'
+import heroImageFile from '../inspiracion/Fotitos Clau-4.jpg'
+import lichenRedFile from '../inspiracion/Fotos ClauDoñas-6.jpg'
+import lichenGreenFile from '../inspiracion/Fotos ClauDoñas-3.jpg'
+import lichenYellowFile from '../inspiracion/Fotitos Clau-1 (1).jpg'
+import lichenTextureFile from '../inspiracion/Fotitos Clau-2 (1) (1).jpg'
+import lichenLandscapeFile from '../inspiracion/Fotitos Clau-3 (1) (1).jpg'
+import silverPieceFile from '../inspiracion/DSC_7682-Enhanced-NR.jpg'
+import aboutPhotoOneFile from './assets/sobreMi_1.png'
+import aboutPhotoTwoFile from './assets/sobreMi_2.png'
+import aboutPhotoThreeFile from './assets/sobreMi_3.png'
+
+const heroImage = heroImageFile.src
+const lichenRed = lichenRedFile.src
+const lichenGreen = lichenGreenFile.src
+const lichenYellow = lichenYellowFile.src
+const lichenTexture = lichenTextureFile.src
+const lichenLandscape = lichenLandscapeFile.src
+const silverPiece = silverPieceFile.src
+const aboutPhotoOne = aboutPhotoOneFile.src
+const aboutPhotoTwo = aboutPhotoTwoFile.src
+const aboutPhotoThree = aboutPhotoThreeFile.src
 
 export type PortfolioItem = {
   id: string

@@ -1,3 +1,5 @@
+'use client'
+
 import { useEffect, useState } from 'react'
 import PhotoSwipeLightbox from 'photoswipe/lightbox'
 import 'photoswipe/style.css'
@@ -37,8 +39,8 @@ function App() {
     <>
       <header className="site-header">
         <a className="brand" href="#inicio" aria-label="Simbionte, inicio" onClick={closeMenu}>
-          <img className="brand-isotype" src={headerIsotype} alt="" />
-          <img className="brand-logotype" src={headerLogotype} alt="Simbionte, fragmentos de un paraíso" />
+          <img className="brand-isotype" src={headerIsotype.src} alt="" />
+          <img className="brand-logotype" src={headerLogotype.src} alt="Simbionte, fragmentos de un paraíso" />
         </a>
         <button className="menu-toggle" type="button" aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'} aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}>
           <i /><i />
@@ -143,7 +145,7 @@ function App() {
 
       <footer className="site-footer">
         <span>© {new Date().getFullYear()} Simbionte Joyas</span>
-        <span className="footer-credit">De Valdivia <img src={valdiviaFlag} alt="Bandera de Valdivia" /> con <span aria-label="amor" role="img">❤️</span> por <a href="https://diegui.dev" target="_blank" rel="noreferrer">diegui.dev</a></span>
+        <span className="footer-credit">De Valdivia <img src={valdiviaFlag.src} alt="Bandera de Valdivia" /> con <span aria-label="amor" role="img">❤️</span> por <a href="https://diegui.dev" target="_blank" rel="noreferrer">diegui.dev</a></span>
         <a href="#inicio">Volver arriba ↑</a>
       </footer>
     </>
