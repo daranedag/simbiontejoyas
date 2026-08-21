@@ -46,8 +46,8 @@ button { font: inherit; }
 .coming-soon-shade { background: linear-gradient(112deg, rgba(17, 26, 23, .87) 0%, rgba(17, 26, 23, .59) 48%, rgba(17, 26, 23, .18) 100%); z-index: -1; }
 .coming-soon-header { align-items: center; display: flex; justify-content: space-between; padding: clamp(1.2rem, 3vw, 2.2rem) clamp(1.25rem, 5vw, 5rem); }
 .coming-soon-brand { align-items: center; display: inline-flex; gap: .42rem; }
-.coming-soon-isotype { display: block; width: clamp(3.5rem, 4.8vw, 4.2rem); }
-.coming-soon-logotype { display: block; width: clamp(11.6rem, 15vw, 13.2rem); }
+.coming-soon-symbol { display: block; width: clamp(2.45rem, 4.3vw, 3.25rem); }
+.coming-soon-wordmark { display: block; filter: brightness(0) invert(1) drop-shadow(0 1px 7px rgba(0, 0, 0, .28)); width: clamp(8.2rem, 13vw, 11rem); }
 .coming-soon-header p, .coming-soon-footer { font-family: var(--font-meta); font-size: .58rem; letter-spacing: .12em; margin: 0; text-transform: uppercase; }
 .coming-soon-content { align-self: center; max-width: 48rem; padding: clamp(3rem, 7vw, 6rem) clamp(1.25rem, 12vw, 12rem); }
 .coming-soon-content .eyebrow { margin-bottom: 1.7rem; }
@@ -60,7 +60,13 @@ button { font: inherit; }
 
 @media (max-width: 620px) {
   .coming-soon-header p { display: none; }
+  .coming-soon-header { padding-block: 1.15rem; }
+  .coming-soon-brand { gap: .35rem; }
+  .coming-soon-symbol { width: clamp(2.25rem, 10vw, 2.75rem); }
+  .coming-soon-wordmark { width: clamp(8rem, 38vw, 10rem); }
   .coming-soon-content { align-self: end; padding-bottom: 7rem; }
+  .coming-soon-content h1 { font-size: clamp(3rem, 17vw, 4.4rem); line-height: .88; max-inline-size: 100%; }
+  .coming-soon-copy { font-size: .98rem; }
   .coming-soon-shade { background: linear-gradient(180deg, rgba(17, 26, 23, .55) 0%, rgba(17, 26, 23, .82) 72%, rgba(17, 26, 23, .9) 100%); }
 }
 

@@ -1,6 +1,6 @@
 import heroImage from '../inspiracion/Fotitos Clau-4.jpg'
-import headerIsotype from '../src/assets/simbionte-header-isotype.png'
-import headerLogotype from '../src/assets/simbionte-header-logotype.png'
+import brandSymbol from '../src/assets/simbionte-symbol-2177cp.png'
+import brandWordmark from '../src/assets/simbionte-wordmark.png'
 
 export default function HomePage() {
   return (
@@ -12,8 +12,8 @@ export default function HomePage() {
 
       <header className="coming-soon-header">
         <a className="coming-soon-brand" href="/" aria-label="Simbionte Joyas">
-          <img className="coming-soon-isotype" src={headerIsotype.src} alt="" />
-          <img className="coming-soon-logotype" src={headerLogotype.src} alt="Simbionte, fragmentos de un paraíso" />
+          <img className="coming-soon-symbol" src={brandSymbol.src} alt="" />
+          <img className="coming-soon-wordmark" src={brandWordmark.src} alt="" />
         </a>
         <p>Valdivia, Chile</p>
       </header>
