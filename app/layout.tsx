@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import '../src/styles.css'
 
 export const metadata: Metadata = {
-  title: 'Simbionte Joyas',
-  description: 'Joyería de autor hecha a mano en Valdivia, Chile.',
+  title: 'Simbionte Joyas — Próximamente',
+  description: 'Simbionte Joyas: fragmentos de un paraíso. Próximamente novedades.',
 }
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
