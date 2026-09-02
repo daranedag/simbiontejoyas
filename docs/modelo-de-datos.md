@@ -83,6 +83,10 @@ Claves iniciales sugeridas para la página actual:
 | Proceso | `home.process.eyebrow`, `home.process.title` |
 | Contacto | `home.contact.eyebrow`, `home.contact.title` |
 
+El seed inicial completo está en [`database/seeds/page-texts.sql`](../database/seeds/page-texts.sql). Incluye también SEO, navegación, las tarjetas de proceso, la etiqueta de Instagram y los textos editables del pie de página. Usa `ON CONFLICT` para poder ejecutarse más de una vez sin duplicar registros.
+
+Los títulos, textos alternativos y descripciones de fotografías no se incluyen en este seed: se registrarán en `images` junto con los identificadores y URLs definitivos de ImageKit.
+
 ### `images`
 
 Representa una foto una sola vez, aunque se muestre en varios lugares.

@@ -3,7 +3,23 @@ node_modules/
 dist/
 .next/
 out/
+.insforge/
 .DS_Store
 *.local
 .inspiracion/
 .src/paleta/
+
+# InsForge & AI agent skills
+.insforge
+.agent
+.agents
+.augment
+.claude
+.cline
+.github/copilot*
+.kilocode
+.qoder
+.qwen
+.roo
+.trae
+.windsurf

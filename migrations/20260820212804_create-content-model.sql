@@ -2,7 +2,7 @@
 -- Diseñado para PostgreSQL/InsForge y para mantener ImageKit desacoplado
 -- de las relaciones editoriales de la página.
 
-CREATE TABLE public.page_texts (
+CREATE TABLE IF NOT EXISTS public.page_texts (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   content_key text NOT NULL,
   locale text NOT NULL DEFAULT 'es-CL',
@@ -35,7 +35,7 @@ CREATE TABLE public.page_texts (
   CONSTRAINT page_texts_sort_order_check CHECK (sort_order >= 0)
 );
 
-CREATE TABLE public.images (
+CREATE TABLE IF NOT EXISTS public.images (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   provider text NOT NULL DEFAULT 'imagekit',
   provider_file_id text NOT NULL,
@@ -74,7 +74,7 @@ CREATE TABLE public.images (
   )
 );
 
-CREATE TABLE public.collections (
+CREATE TABLE IF NOT EXISTS public.collections (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   name text NOT NULL,
   slug text NOT NULL UNIQUE,
@@ -98,7 +98,7 @@ CREATE TABLE public.collections (
   )
 );
 
-CREATE TABLE public.projects (
+CREATE TABLE IF NOT EXISTS public.projects (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   name text NOT NULL,
   slug text NOT NULL UNIQUE,
@@ -122,7 +122,7 @@ CREATE TABLE public.projects (
   )
 );
 
-CREATE TABLE public.collection_images (
+CREATE TABLE IF NOT EXISTS public.collection_images (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   collection_id uuid NOT NULL REFERENCES public.collections(id) ON DELETE CASCADE,
   image_id uuid NOT NULL REFERENCES public.images(id) ON DELETE CASCADE,
@@ -134,7 +134,7 @@ CREATE TABLE public.collection_images (
   CONSTRAINT collection_images_position_check CHECK (position >= 0)
 );
 
-CREATE TABLE public.project_images (
+CREATE TABLE IF NOT EXISTS public.project_images (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   project_id uuid NOT NULL REFERENCES public.projects(id) ON DELETE CASCADE,
   image_id uuid NOT NULL REFERENCES public.images(id) ON DELETE CASCADE,
@@ -146,39 +146,39 @@ CREATE TABLE public.project_images (
   CONSTRAINT project_images_position_check CHECK (position >= 0)
 );
 
-CREATE INDEX page_texts_public_order_idx
+CREATE INDEX IF NOT EXISTS page_texts_public_order_idx
   ON public.page_texts (page_key, section_key, sort_order)
   WHERE status = 'published';
 
-CREATE INDEX images_public_idx
+CREATE INDEX IF NOT EXISTS images_public_idx
   ON public.images (created_at DESC)
   WHERE status = 'published';
 
-CREATE INDEX collections_public_order_idx
+CREATE INDEX IF NOT EXISTS collections_public_order_idx
   ON public.collections (sort_order, published_at DESC)
   WHERE status = 'published';
 
-CREATE INDEX projects_public_order_idx
+CREATE INDEX IF NOT EXISTS projects_public_order_idx
   ON public.projects (sort_order, published_at DESC)
   WHERE status = 'published';
 
-CREATE INDEX collection_images_order_idx
+CREATE INDEX IF NOT EXISTS collection_images_order_idx
   ON public.collection_images (collection_id, position, id);
 
-CREATE INDEX collection_images_image_idx
+CREATE INDEX IF NOT EXISTS collection_images_image_idx
   ON public.collection_images (image_id);
 
-CREATE UNIQUE INDEX collection_images_one_cover_idx
+CREATE UNIQUE INDEX IF NOT EXISTS collection_images_one_cover_idx
   ON public.collection_images (collection_id)
   WHERE is_cover;
 
-CREATE INDEX project_images_order_idx
+CREATE INDEX IF NOT EXISTS project_images_order_idx
   ON public.project_images (project_id, position, id);
 
-CREATE INDEX project_images_image_idx
+CREATE INDEX IF NOT EXISTS project_images_image_idx
   ON public.project_images (image_id);
 
-CREATE UNIQUE INDEX project_images_one_cover_idx
+CREATE UNIQUE INDEX IF NOT EXISTS project_images_one_cover_idx
   ON public.project_images (project_id)
   WHERE is_cover;
 
@@ -193,18 +193,22 @@ BEGIN
 END;
 $$;
 
+DROP TRIGGER IF EXISTS page_texts_set_updated_at ON public.page_texts;
 CREATE TRIGGER page_texts_set_updated_at
 BEFORE UPDATE ON public.page_texts
 FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
+DROP TRIGGER IF EXISTS images_set_updated_at ON public.images;
 CREATE TRIGGER images_set_updated_at
 BEFORE UPDATE ON public.images
 FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
+DROP TRIGGER IF EXISTS collections_set_updated_at ON public.collections;
 CREATE TRIGGER collections_set_updated_at
 BEFORE UPDATE ON public.collections
 FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
+DROP TRIGGER IF EXISTS projects_set_updated_at ON public.projects;
 CREATE TRIGGER projects_set_updated_at
 BEFORE UPDATE ON public.projects
 FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
@@ -216,30 +220,35 @@ ALTER TABLE public.projects ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.collection_images ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.project_images ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS page_texts_public_read ON public.page_texts;
 CREATE POLICY page_texts_public_read
 ON public.page_texts
 FOR SELECT
 TO anon, authenticated
 USING (status = 'published');
 
+DROP POLICY IF EXISTS images_public_read ON public.images;
 CREATE POLICY images_public_read
 ON public.images
 FOR SELECT
 TO anon, authenticated
 USING (status = 'published');
 
+DROP POLICY IF EXISTS collections_public_read ON public.collections;
 CREATE POLICY collections_public_read
 ON public.collections
 FOR SELECT
 TO anon, authenticated
 USING (status = 'published');
 
+DROP POLICY IF EXISTS projects_public_read ON public.projects;
 CREATE POLICY projects_public_read
 ON public.projects
 FOR SELECT
 TO anon, authenticated
 USING (status = 'published');
 
+DROP POLICY IF EXISTS collection_images_public_read ON public.collection_images;
 CREATE POLICY collection_images_public_read
 ON public.collection_images
 FOR SELECT
@@ -259,6 +268,7 @@ USING (
   )
 );
 
+DROP POLICY IF EXISTS project_images_public_read ON public.project_images;
 CREATE POLICY project_images_public_read
 ON public.project_images
 FOR SELECT

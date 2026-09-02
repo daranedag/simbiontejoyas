@@ -1,6 +1,6 @@
 # Simbionte Joyas
 
-Sitio de portafolio construido con Next.js, React, pnpm y PhotoSwipe. La página actual conserva contenido local mientras se prepara la integración editorial con InsForge e ImageKit.
+Sitio de portafolio construido con Next.js, React, pnpm y PhotoSwipe. El contenido publicado se obtiene desde InsForge; si el backend no está configurado, la portada conserva sus datos locales de respaldo.
 
 ## Desarrollo
 
@@ -16,22 +16,36 @@ pnpm build
 pnpm start
 ```
 
-## Contenido provisional
+## Panel administrativo
 
-- `src/data.ts` contiene las piezas de muestra; será el punto de sustitución por el cliente del futuro backend.
-- `src/styles.css` concentra los tokens visuales (colores y fuentes) al inicio del archivo.
-- Los gráficos de la grilla son marcadores SVG locales, no fotos finales.
+El panel se muestra en `https://admin.simbiontejoyas.cl`. Está protegido con inicio de sesión de Google mediante InsForge y admite:
 
-## Backend previsto
+- edición y publicación de los textos, incluido SEO;
+- creación, orden y publicación de colecciones;
+- carga directa de fotos a ImageKit, sin revelar la clave privada al navegador;
+- metadatos, publicación y eliminación de imágenes, y asignación de fotos a las secciones de la portada.
 
-- El [modelo de datos](docs/modelo-de-datos.md) define textos de página, imágenes de ImageKit, colecciones y proyectos.
-- La migración inicial está en `migrations/20260820212804_create-content-model.sql` y se aplicará cuando el repositorio esté vinculado al nuevo proyecto de InsForge.
-- Las siguientes fases están registradas en [TODO.md](TODO.md), incluido el panel administrativo.
+El dominio público redirige `https://simbiontejoyas.cl/admin` al subdominio administrativo. En desarrollo también se puede abrir `http://localhost:3000/admin`.
+
+Para permitir el acceso, agregue en `ADMIN_EMAILS` los correos de Google autorizados, separados por comas. Un usuario autenticado que no figure allí no puede ver ni modificar el panel.
+
+## Configuración
+
+Copie `.env.example` como `.env.local` y complete sus valores. Para producción, configure las mismas variables en Vercel:
+
+```env
+NEXT_PUBLIC_INSFORGE_URL=https://nc43x3r8.us-east.insforge.app
+NEXT_PUBLIC_INSFORGE_ANON_KEY=
+INSFORGE_API_KEY=
+ADMIN_EMAILS=admin@ejemplo.cl
+NEXT_PUBLIC_APP_URL=https://admin.simbiontejoyas.cl
+IMAGEKIT_PUBLIC_KEY=
+IMAGEKIT_PRIVATE_KEY=
+IMAGEKIT_FOLDER=/simbiontejoyas
+```
+
+`INSFORGE_API_KEY` e `IMAGEKIT_PRIVATE_KEY` son exclusivas del servidor: nunca deben comenzar con `NEXT_PUBLIC_` ni subirse al repositorio. El proyecto de InsForge ya tiene configuradas las URLs de retorno de producción y desarrollo para Google SSO.
 
 ## Publicación
 
-El proyecto está preparado para desplegarse en Vercel como aplicación Next.js. Al importar el repositorio, Vercel detectará el framework y usará `pnpm build` automáticamente.
-
-Antes de integrar el backend, no se requieren variables de entorno. En las fases de InsForge e ImageKit, las claves privadas se configurarán como variables seguras en Vercel y nunca se incluirán en el navegador ni en el repositorio.
-
-GitHub Pages deja de ser el destino de publicación porque no admite las rutas de servidor necesarias para el futuro BFF y panel administrativo.
+El proyecto se despliega en Vercel como aplicación Next.js con `pnpm build`. El subdominio `admin.simbiontejoyas.cl` está asignado al proyecto; Vercel emitirá el certificado SSL antes de dejarlo disponible. Después de cargar las variables de entorno, haga un nuevo despliegue para activar el panel.
