@@ -1,5 +1,6 @@
 import { AdminShell } from '../../../components/admin-shell'
 import { ImageUploader } from '../../../components/image-uploader'
+import { ImageKitLibraryPicker } from '../../../components/imagekit-library-picker'
 import { requireAdmin } from '../../../lib/admin-auth'
 import type { CmsImage, SectionImage } from '../../../lib/cms'
 import { createInsForgeAdminClient } from '../../../lib/insforge/server'
@@ -53,6 +54,11 @@ export default async function ImagesPage() {
       <section className="admin-card">
         <h2>Subir una fotografía</h2>
         <ImageUploader />
+      </section>
+
+      <section className="admin-card admin-imagekit-library-card">
+        <h2>Elegir desde ImageKit</h2>
+        <ImageKitLibraryPicker />
       </section>
 
       <section className="admin-card">

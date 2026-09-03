@@ -2,17 +2,25 @@ import Link from 'next/link'
 import type { ReactNode } from 'react'
 import type { AdminUser } from '../lib/admin-auth'
 import { signOut } from '../app/admin/actions'
+import { getAdminPath } from '../lib/admin-routes'
 
-export function AdminShell({ children, user }: { children: ReactNode; user: AdminUser }) {
+export async function AdminShell({ children, user }: { children: ReactNode; user: AdminUser }) {
+  const [homePath, contentPath, collectionsPath, imagesPath] = await Promise.all([
+    getAdminPath('/'),
+    getAdminPath('/content'),
+    getAdminPath('/collections'),
+    getAdminPath('/images'),
+  ])
+
   return (
     <div className="admin-shell">
       <aside className="admin-sidebar">
-        <Link className="admin-brand" href="/">Simbionte <span>admin</span></Link>
+        <Link className="admin-brand" href={homePath}>Simbionte <span>admin</span></Link>
         <nav aria-label="Administración">
-          <Link href="/">Resumen</Link>
-          <Link href="/content">Textos y secciones</Link>
-          <Link href="/collections">Colecciones</Link>
-          <Link href="/images">Fotografías</Link>
+          <Link href={homePath}>Resumen</Link>
+          <Link href={contentPath}>Textos y secciones</Link>
+          <Link href={collectionsPath}>Colecciones</Link>
+          <Link href={imagesPath}>Fotografías</Link>
         </nav>
         <div className="admin-account">
           <p>{user.name}</p>

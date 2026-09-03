@@ -1,12 +1,13 @@
 import { redirect } from 'next/navigation'
 import { getCurrentAdmin } from '../../../lib/admin-auth'
+import { getAdminPath } from '../../../lib/admin-routes'
 import { signInWithGoogle } from '../actions'
 
 export default async function AdminLoginPage() {
   const admin = await getCurrentAdmin()
 
   if (admin) {
-    redirect('/')
+    redirect(await getAdminPath('/'))
   }
 
   return (

@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createInsForgeServerClient } from './insforge/server'
+import { getAdminPath } from './admin-routes'
 
 function allowedEmails() {
   return new Set(
@@ -37,7 +38,7 @@ export async function requireAdmin() {
   const admin = await getCurrentAdmin()
 
   if (!admin) {
-    redirect('/login')
+    redirect(await getAdminPath('/login'))
   }
 
   return admin

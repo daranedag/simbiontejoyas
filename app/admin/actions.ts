@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation'
 import { createAuthActions } from '@insforge/sdk/ssr'
 import { cookies } from 'next/headers'
 import { requireAdmin } from '../../lib/admin-auth'
+import { getAdminPath, getRequestOrigin } from '../../lib/admin-routes'
 import { createInsForgeAdminClient } from '../../lib/insforge/server'
 
 const statuses = new Set(['draft', 'published', 'archived'])
@@ -54,7 +55,7 @@ function refreshPublicContent() {
 }
 
 export async function signInWithGoogle() {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL
+  const appUrl = await getRequestOrigin()
 
   if (!appUrl) {
     throw new Error('Falta NEXT_PUBLIC_APP_URL.')
@@ -89,7 +90,7 @@ export async function signOut() {
   const { error } = await auth.signOut()
 
   assertNoError(error)
-  redirect('/login')
+  redirect(await getAdminPath('/login'))
 }
 
 export async function updatePageText(formData: FormData) {
@@ -107,7 +108,7 @@ export async function updatePageText(formData: FormData) {
 
   assertNoError(error)
   refreshPublicContent()
-  redirect('/content')
+  redirect(await getAdminPath('/content'))
 }
 
 export async function createCollection(formData: FormData) {
@@ -128,7 +129,7 @@ export async function createCollection(formData: FormData) {
 
   assertNoError(error)
   refreshPublicContent()
-  redirect('/collections')
+  redirect(await getAdminPath('/collections'))
 }
 
 export async function updateCollection(formData: FormData) {
@@ -151,7 +152,7 @@ export async function updateCollection(formData: FormData) {
 
   assertNoError(error)
   refreshPublicContent()
-  redirect('/collections')
+  redirect(await getAdminPath('/collections'))
 }
 
 export async function deleteCollection(formData: FormData) {
@@ -161,7 +162,7 @@ export async function deleteCollection(formData: FormData) {
 
   assertNoError(error)
   refreshPublicContent()
-  redirect('/collections')
+  redirect(await getAdminPath('/collections'))
 }
 
 export async function attachImageToCollection(formData: FormData) {
@@ -190,7 +191,7 @@ export async function attachImageToCollection(formData: FormData) {
 
   assertNoError(error)
   refreshPublicContent()
-  redirect('/collections')
+  redirect(await getAdminPath('/collections'))
 }
 
 export async function detachImageFromCollection(formData: FormData) {
@@ -203,7 +204,7 @@ export async function detachImageFromCollection(formData: FormData) {
 
   assertNoError(error)
   refreshPublicContent()
-  redirect('/collections')
+  redirect(await getAdminPath('/collections'))
 }
 
 export async function updateImage(formData: FormData) {
@@ -221,7 +222,7 @@ export async function updateImage(formData: FormData) {
 
   assertNoError(error)
   refreshPublicContent()
-  redirect('/images')
+  redirect(await getAdminPath('/images'))
 }
 
 export async function deleteImage(formData: FormData) {
@@ -237,7 +238,7 @@ export async function deleteImage(formData: FormData) {
   assertNoError(imageError)
 
   if (!data) {
-    redirect('/images')
+    redirect(await getAdminPath('/images'))
   }
 
   if (data.provider === 'imagekit') {
@@ -260,7 +261,7 @@ export async function deleteImage(formData: FormData) {
   const { error } = await admin.database.from('images').delete().eq('id', id)
   assertNoError(error)
   refreshPublicContent()
-  redirect('/images')
+  redirect(await getAdminPath('/images'))
 }
 
 export async function assignImageToSection(formData: FormData) {
@@ -296,7 +297,7 @@ export async function assignImageToSection(formData: FormData) {
 
   assertNoError(error)
   refreshPublicContent()
-  redirect('/images')
+  redirect(await getAdminPath('/images'))
 }
 
 export async function removeImageFromSection(formData: FormData) {
@@ -309,5 +310,5 @@ export async function removeImageFromSection(formData: FormData) {
 
   assertNoError(error)
   refreshPublicContent()
-  redirect('/images')
+  redirect(await getAdminPath('/images'))
 }

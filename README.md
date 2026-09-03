@@ -25,7 +25,7 @@ El panel se muestra en `https://admin.simbiontejoyas.cl`. Está protegido con in
 - carga directa de fotos a ImageKit, sin revelar la clave privada al navegador;
 - metadatos, publicación y eliminación de imágenes, y asignación de fotos a las secciones de la portada.
 
-El dominio público redirige `https://simbiontejoyas.cl/admin` al subdominio administrativo. En desarrollo también se puede abrir `http://localhost:3000/admin`.
+El dominio público redirige `https://simbiontejoyas.cl/admin` al subdominio administrativo. En desarrollo, `http://localhost:3000/admin` redirige a `http://admin.localhost:3000`, para que el inicio de sesión use el mismo host de principio a fin.
 
 Para permitir el acceso, agregue en `ADMIN_EMAILS` los correos de Google autorizados, separados por comas. Un usuario autenticado que no figure allí no puede ver ni modificar el panel.
 

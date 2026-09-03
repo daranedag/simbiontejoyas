@@ -115,6 +115,24 @@
 .admin-upload-message.is-error { color: var(--admin-red); }
 .admin-upload-message.is-success { color: #245c56; }
 
+.admin-imagekit-library-card { margin-top: 1rem; }
+.admin-imagekit-toolbar { align-items: flex-start; display: flex; gap: 1rem; justify-content: space-between; margin-bottom: 1.5rem; }
+.admin-imagekit-toolbar p { color: rgba(52, 61, 69, .72); font-size: .9rem; line-height: 1.45; margin: .35rem 0 0; max-width: 38rem; }
+.admin-imagekit-path { color: var(--admin-ink) !important; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .72rem !important; margin-top: 0 !important; }
+.admin-imagekit-actions, .admin-imagekit-folders { display: flex; flex-wrap: wrap; gap: .5rem; }
+.admin-imagekit-actions .admin-button { min-height: 2.35rem; }
+.admin-imagekit-folders { border-bottom: 1px solid var(--admin-line); margin-bottom: 1.25rem; padding-bottom: 1.25rem; }
+.admin-imagekit-folder { background: rgba(114, 198, 188, .13); border: 1px solid rgba(73, 83, 68, .18); border-radius: 999px; color: var(--admin-ink); cursor: pointer; font: inherit; font-size: .78rem; padding: .55rem .8rem; }
+.admin-imagekit-folder:hover { border-color: var(--admin-teal); }
+.admin-imagekit-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); }
+.admin-imagekit-asset { background: #fff; border: 1px solid var(--admin-line); overflow: hidden; }
+.admin-imagekit-asset > img { aspect-ratio: 1; display: block; object-fit: cover; width: 100%; }
+.admin-imagekit-asset > div { display: grid; gap: .45rem; padding: .75rem; }
+.admin-imagekit-asset strong, .admin-imagekit-asset span { overflow-wrap: anywhere; }
+.admin-imagekit-asset strong { font-size: .85rem; }
+.admin-imagekit-asset span { color: rgba(52, 61, 69, .6); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .65rem; }
+.admin-imagekit-asset .admin-button { justify-self: start; margin-top: .35rem; min-height: 2.35rem; }
+
 .admin-login { align-items: center; background: var(--admin-moss); color: var(--admin-paper); display: grid; min-height: 100svh; padding: 1.5rem; place-items: center; }
 .admin-login-card { background: var(--admin-paper); color: var(--admin-ink); max-width: 31rem; padding: clamp(2rem, 7vw, 4.5rem); width: 100%; }
 .admin-login-card > p:not(.admin-kicker) { font-size: 1.05rem; line-height: 1.55; margin-bottom: 2rem; }
@@ -131,6 +149,7 @@
   .admin-main { padding: 2rem 1.25rem 3.5rem; }
   .admin-stat-grid { grid-template-columns: 1fr; }
   .admin-stat-grid a { min-height: 7rem; }
+  .admin-imagekit-toolbar { flex-direction: column; }
 }
 
 @media (max-width: 560px) {

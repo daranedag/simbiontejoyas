@@ -1,11 +1,16 @@
 import { cookies } from 'next/headers'
 import { NextResponse, type NextRequest } from 'next/server'
 import { createAuthActions } from '@insforge/sdk/ssr'
+import { adminOriginForHost } from '../../../../lib/admin-routes'
 
 export async function GET(request: NextRequest) {
   const code = request.nextUrl.searchParams.get('insforge_code')
   const oauthError = request.nextUrl.searchParams.get('error')
-  const failureUrl = new URL('/login?error=oauth', request.url)
+  const adminOrigin = adminOriginForHost(request.headers.get('host'))
+  const failureUrl = new URL(
+    '/login?error=oauth',
+    adminOrigin,
+  )
 
   if (oauthError || !code) {
     return NextResponse.redirect(failureUrl)
@@ -17,7 +22,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(failureUrl)
   }
 
-  const response = NextResponse.redirect(new URL('/', request.url))
+  const response = NextResponse.redirect(new URL('/', adminOrigin))
   const auth = createAuthActions({
     requestCookies: request.cookies,
     responseCookies: response.cookies,
