@@ -61,12 +61,12 @@ function formatEditorialText(text: string) {
   ))
 }
 
-function App({ content }: { content?: PublicSiteContent }) {
+function App({ content, previewSection }: { content?: PublicSiteContent; previewSection?: string }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [slide, setSlide] = useState(0)
   const [processSlide, setProcessSlide] = useState(0)
 
-  const text = (key: string) => content?.texts[key] || defaultTexts[key] || ''
+  const text = (key: string) => content?.texts[key] ?? defaultTexts[key] ?? ''
   const heroSectionImage = sectionImageUrl(content?.sectionImages ?? [], 'hero', 'background')
   const dynamicAboutSlides = (content?.sectionImages ?? [])
     .filter((item) => item.section_key === 'about' && item.slot_key === 'gallery')
@@ -103,7 +103,7 @@ function App({ content }: { content?: PublicSiteContent }) {
 
   return (
     <>
-      <header className="site-header">
+      <header className={`site-header${previewSection === 'navigation' ? ' is-admin-preview-active' : ''}`}>
         <a className="brand" href="#inicio" aria-label="Simbionte, inicio" onClick={closeMenu}>
           <img className="brand-isotype" src={headerIsotype.src} alt="" />
           <img className="brand-logotype" src={headerLogotype.src} alt="Simbionte, fragmentos de un paraíso" />
@@ -120,7 +120,7 @@ function App({ content }: { content?: PublicSiteContent }) {
       </header>
 
       <main>
-        <section className="hero" id="inicio" aria-labelledby="hero-title">
+        <section className={`hero${previewSection === 'hero' ? ' is-admin-preview-active' : ''}`} id="inicio" aria-labelledby="hero-title">
           <img className="hero-image" src={heroSectionImage?.url || heroImage} alt={heroSectionImage?.alt || 'Textura natural de líquenes anaranjados'} />
           <div className="hero-shade" />
           <div className="hero-copy">
@@ -132,7 +132,7 @@ function App({ content }: { content?: PublicSiteContent }) {
           <p className="hero-caption">{formatEditorialText(text('home.hero.caption'))}</p>
         </section>
 
-        <section className="portfolio-section" id="obra" aria-labelledby="portfolio-title">
+        <section className={`portfolio-section${previewSection === 'work' ? ' is-admin-preview-active' : ''}`} id="obra" aria-labelledby="portfolio-title">
           <div className="section-heading">
             <p className="eyebrow">{text('home.work.eyebrow')}</p>
             <h2 id="portfolio-title">{formatEditorialText(text('home.work.title'))}</h2>
@@ -149,7 +149,7 @@ function App({ content }: { content?: PublicSiteContent }) {
           <p className="gallery-hint">{text('home.work.gallery_hint')}</p>
         </section>
 
-        <section className="about-me" id="sobre-mi" aria-labelledby="about-title">
+        <section className={`about-me${previewSection === 'about' ? ' is-admin-preview-active' : ''}`} id="sobre-mi" aria-labelledby="about-title">
           <div className="about-intro">
             <p className="eyebrow">{text('home.about.eyebrow')}</p>
             <h2 id="about-title">{formatEditorialText(text('home.about.title'))}</h2>
@@ -173,7 +173,7 @@ function App({ content }: { content?: PublicSiteContent }) {
           </div>
         </section>
 
-        <section className="process" id="proceso" aria-labelledby="process-title">
+        <section className={`process${previewSection === 'process' ? ' is-admin-preview-active' : ''}`} id="proceso" aria-labelledby="process-title">
           <div className="process-heading">
             <p className="eyebrow">{text('home.process.eyebrow')}</p>
             <h2 id="process-title">{formatEditorialText(text('home.process.title'))}</h2>
@@ -202,14 +202,14 @@ function App({ content }: { content?: PublicSiteContent }) {
           </div>
         </section>
 
-        <section className="contact" id="contacto" aria-labelledby="contact-title">
+        <section className={`contact${previewSection === 'contact' ? ' is-admin-preview-active' : ''}`} id="contacto" aria-labelledby="contact-title">
           <p className="eyebrow">{text('home.contact.eyebrow')}</p>
           <h2 id="contact-title">{formatEditorialText(text('home.contact.title'))}</h2>
           <a className="instagram-link" href={instagramUrl} target="_blank" rel="noreferrer">{text('home.contact.instagram-label')} <span>↗</span></a>
         </section>
       </main>
 
-      <footer className="site-footer">
+      <footer className={`site-footer${previewSection === 'footer' ? ' is-admin-preview-active' : ''}`} id="site-footer">
         <span>© {new Date().getFullYear()} {text('home.footer.copyright-name')}</span>
         <span className="footer-credit">{text('home.footer.origin')} <img src={valdiviaFlag.src} alt="Bandera de Valdivia" /> con <span aria-label="amor" role="img">❤️</span> {text('home.footer.credit').replace(/^por\s+/i, '') ? 'por ' : ''}<a href="https://diegui.dev" target="_blank" rel="noreferrer">{text('home.footer.credit').replace(/^por\s+/i, '') || 'diegui.dev'}</a></span>
         <a href="#inicio">{text('home.footer.back-to-top')} ↑</a>
