@@ -4,7 +4,7 @@ import { ImageKitLibraryPicker } from '../../../components/imagekit-library-pick
 import { requireAdmin } from '../../../lib/admin-auth'
 import type { CmsImage, SectionImage } from '../../../lib/cms'
 import { createInsForgeAdminClient } from '../../../lib/insforge/server'
-import { assignImageToSection, deleteImage, removeImageFromSection, updateImage } from '../actions'
+import { assignImageUsage, deleteImage, removeImageFromSection, updateImage } from '../actions'
 
 type AdminImage = CmsImage & {
   provider_file_id: string
@@ -13,16 +13,20 @@ type AdminImage = CmsImage & {
   status: 'draft' | 'published' | 'archived'
 }
 
+type PublishedGroup = {
+  id: string
+  name: string
+}
+
 const sectionTargets = [
-  { section: 'hero', slot: 'background', label: 'Portada · imagen de fondo' },
-  { section: 'about', slot: 'gallery', label: 'Sobre mí · carrusel' },
-  { section: 'process', slot: 'card', label: 'Proceso · tarjeta' },
+  { value: 'section|about|gallery', label: 'Sobre mí · carrusel' },
+  { value: 'section|process|card', label: 'Proceso · tarjetas' },
 ]
 
 export default async function ImagesPage() {
   const user = await requireAdmin()
   const admin = createInsForgeAdminClient()
-  const [imagesResult, sectionImagesResult] = await Promise.all([
+  const [imagesResult, sectionImagesResult, collectionsResult, projectsResult] = await Promise.all([
     admin.database
       .from('images')
       .select('id, provider_file_id, file_name, url, thumbnail_url, alt_text, title, caption, status, width, height')
@@ -35,20 +39,36 @@ export default async function ImagesPage() {
       .order('section_key', { ascending: true })
       .order('position', { ascending: true })
       .limit(100),
+    admin.database
+      .from('collections')
+      .select('id, name')
+      .eq('status', 'published')
+      .order('sort_order', { ascending: true })
+      .limit(100),
+    admin.database
+      .from('projects')
+      .select('id, name')
+      .eq('status', 'published')
+      .order('sort_order', { ascending: true })
+      .limit(100),
   ])
 
   if (imagesResult.error) throw new Error(imagesResult.error.message)
   if (sectionImagesResult.error) throw new Error(sectionImagesResult.error.message)
+  if (collectionsResult.error) throw new Error(collectionsResult.error.message)
+  if (projectsResult.error) throw new Error(projectsResult.error.message)
 
   const images = (imagesResult.data ?? []) as AdminImage[]
   const sectionImages = (sectionImagesResult.data ?? []) as SectionImage[]
+  const collections = (collectionsResult.data ?? []) as PublishedGroup[]
+  const projects = (projectsResult.data ?? []) as PublishedGroup[]
 
   return (
     <AdminShell user={user}>
       <header className="admin-page-heading">
         <p className="admin-kicker">Biblioteca</p>
         <h1>Fotografías.</h1>
-        <p>Las cargas se alojan directamente en ImageKit. Antes de aparecer en la web, cada imagen debe estar publicada y asociada a una sección o colección.</p>
+        <p>Las cargas se alojan directamente en ImageKit. Antes de aparecer en la web, cada imagen debe estar publicada y asociada a una sección, colección o proyecto.</p>
       </header>
 
       <section className="admin-card">
@@ -112,15 +132,25 @@ export default async function ImagesPage() {
                 <button className="admin-button" type="submit">Guardar fotografía</button>
               </form>
 
-              <form action={assignImageToSection} className="admin-attach-form">
+              <form action={assignImageUsage} className="admin-attach-form">
                 <input name="image_id" type="hidden" value={image.id} />
                 <label>Usar en
-                  <select defaultValue="hero|background" name="section_target">
-                    {sectionTargets.map((target) => <option key={`${target.section}|${target.slot}`} value={`${target.section}|${target.slot}`}>{target.label}</option>)}
+                  <select name="usage_target" required>
+                    <optgroup label="Secciones">
+                      {sectionTargets.map((target) => <option key={target.value} value={target.value}>{target.label}</option>)}
+                    </optgroup>
+                    <optgroup label="Colecciones publicadas">
+                      {collections.length === 0 && <option disabled>No hay colecciones publicadas</option>}
+                      {collections.map((collection) => <option key={collection.id} value={`collection|${collection.id}`}>{collection.name}</option>)}
+                    </optgroup>
+                    <optgroup label="Proyectos publicados">
+                      {projects.length === 0 && <option disabled>No hay proyectos publicados</option>}
+                      {projects.map((project) => <option key={project.id} value={`project|${project.id}`}>{project.name}</option>)}
+                    </optgroup>
                   </select>
                 </label>
                 <label>Posición<input defaultValue="0" min="0" name="sort_order" type="number" /></label>
-                <button className="admin-button admin-button-secondary" type="submit">Asignar a sección</button>
+                <button className="admin-button admin-button-secondary" type="submit">Asignar</button>
               </form>
 
               <form action={deleteImage} className="admin-delete-form">

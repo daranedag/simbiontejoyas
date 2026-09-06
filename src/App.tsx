@@ -10,6 +10,12 @@ import headerLogotype from './assets/simbionte-header-logotype.png'
 import type { PublicSiteContent, SectionImage } from '../lib/cms'
 
 const instagramUrl = 'https://www.instagram.com/simbiontejoyas/'
+const fallbackCollections = [{
+  id: 'obra-seleccionada',
+  name: 'Obra seleccionada',
+  description: '',
+  items: portfolio,
+}]
 
 const defaultTexts: Record<string, string> = {
   'home.navigation.work': 'obra',
@@ -63,6 +69,7 @@ function formatEditorialText(text: string) {
 
 function App({ content, previewSection }: { content?: PublicSiteContent; previewSection?: string }) {
   const [menuOpen, setMenuOpen] = useState(false)
+  const [activeCollectionId, setActiveCollectionId] = useState('')
   const [slide, setSlide] = useState(0)
   const [processSlide, setProcessSlide] = useState(0)
 
@@ -79,9 +86,13 @@ function App({ content, previewSection }: { content?: PublicSiteContent; preview
     const image = sectionImageUrl(content?.sectionImages ?? [], 'process', 'card', index)
     return image ? { ...card, image: image.url, alt: image.alt || card.alt } : card
   })
-  const galleryItems = content?.portfolio ?? portfolio
+  const collections = content?.collections ?? fallbackCollections
+  const activeCollection = collections.find((collection) => collection.id === activeCollectionId) ?? collections[0]
+  const galleryItems = activeCollection?.items ?? []
 
   useEffect(() => {
+    if (!activeCollection) return
+
     const lightbox = new PhotoSwipeLightbox({
       gallery: '#portfolio-gallery',
       children: 'a',
@@ -91,7 +102,7 @@ function App({ content, previewSection }: { content?: PublicSiteContent; preview
     })
     lightbox.init()
     return () => lightbox.destroy()
-  }, [])
+  }, [activeCollection?.id])
 
   const closeMenu = () => setMenuOpen(false)
   const previousSlide = () => setSlide((current) => (current - 1 + renderedAboutSlides.length) % renderedAboutSlides.length)
@@ -137,16 +148,51 @@ function App({ content, previewSection }: { content?: PublicSiteContent; preview
             <p className="eyebrow">{text('home.work.eyebrow')}</p>
             <h2 id="portfolio-title">{formatEditorialText(text('home.work.title'))}</h2>
           </div>
-          <div className="portfolio-grid" id="portfolio-gallery">
-            {galleryItems.map((item, index) => (
-              <a className="portfolio-item" href={item.image} data-pswp-width={item.width} data-pswp-height={item.height} key={item.id}>
-                <img src={item.image} alt={item.alt} />
-                <span className="item-number">{String(index + 1).padStart(2, '0')}</span>
-                <span className="item-title">{item.title}</span>
-              </a>
-            ))}
-          </div>
-          <p className="gallery-hint">{text('home.work.gallery_hint')}</p>
+          {activeCollection ? (
+            <>
+              <div className="collection-menu">
+                <label htmlFor="collection-select">Colección</label>
+                <div className="collection-select-wrap">
+                  <select
+                    id="collection-select"
+                    onChange={(event) => setActiveCollectionId(event.target.value)}
+                    value={activeCollection.id}
+                  >
+                    {collections.map((collection) => (
+                      <option key={collection.id} value={collection.id}>{collection.name}</option>
+                    ))}
+                  </select>
+                  <span aria-hidden="true">↓</span>
+                </div>
+              </div>
+              <div className="collection-heading" key={activeCollection.id}>
+                <div>
+                  <p className="eyebrow">Colección seleccionada</p>
+                  <h3>{activeCollection.name}</h3>
+                  {activeCollection.description && <p>{activeCollection.description}</p>}
+                </div>
+                <span>{galleryItems.length} {galleryItems.length === 1 ? 'fotografía' : 'fotografías'}</span>
+              </div>
+              {galleryItems.length > 0 ? (
+                <>
+                  <div className="portfolio-grid" id="portfolio-gallery" key={activeCollection.id}>
+                    {galleryItems.map((item, index) => (
+                      <a className="portfolio-item" href={item.image} data-pswp-width={item.width} data-pswp-height={item.height} key={item.id}>
+                        <img src={item.image} alt={item.alt} />
+                        <span className="item-number">{String(index + 1).padStart(2, '0')}</span>
+                        <span className="item-title">{item.title}</span>
+                      </a>
+                    ))}
+                  </div>
+                  <p className="gallery-hint">{text('home.work.gallery_hint')}</p>
+                </>
+              ) : (
+                <p className="collection-empty">Esta colección todavía no tiene fotografías disponibles.</p>
+              )}
+            </>
+          ) : (
+            <p className="collection-empty">No hay colecciones publicadas en este momento.</p>
+          )}
         </section>
 
         <section className={`about-me${previewSection === 'about' ? ' is-admin-preview-active' : ''}`} id="sobre-mi" aria-labelledby="about-title">

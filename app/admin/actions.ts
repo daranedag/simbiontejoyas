@@ -437,38 +437,99 @@ export async function deleteImage(formData: FormData) {
   redirect(await getAdminPath('/images'))
 }
 
-export async function assignImageToSection(formData: FormData) {
+export async function assignImageUsage(formData: FormData) {
   await requireAdmin()
-  const pageKey = 'home'
-  const [sectionKey, slotKey] = requiredValue(formData, 'section_target').split('|')
-
-  if (!sectionKey || !slotKey || !['hero|background', 'about|gallery', 'process|card'].includes(`${sectionKey}|${slotKey}`)) {
-    throw new Error('La sección seleccionada no es válida.')
-  }
-
+  const imageId = requiredValue(formData, 'image_id')
+  const [targetType, targetId, slotKey] = requiredValue(formData, 'usage_target').split('|')
   const position = sortOrder(formData)
   const admin = createInsForgeAdminClient()
 
-  const { error: removeError } = await admin.database
-    .from('section_images')
-    .delete()
-    .eq('page_key', pageKey)
-    .eq('section_key', sectionKey)
-    .eq('slot_key', slotKey)
-    .eq('position', position)
-  assertNoError(removeError)
+  if (!targetType || !targetId) {
+    throw new Error('El destino seleccionado no es válido.')
+  }
 
-  const { error } = await admin.database.from('section_images').insert([
-    {
-      page_key: pageKey,
-      section_key: sectionKey,
-      slot_key: slotKey,
-      position,
-      image_id: requiredValue(formData, 'image_id'),
-    },
-  ])
+  if (targetType === 'section') {
+    if (!targetId || !slotKey || !['about|gallery', 'process|card'].includes(`${targetId}|${slotKey}`)) {
+      throw new Error('La sección seleccionada no es válida.')
+    }
 
-  assertNoError(error)
+    const { error: removeError } = await admin.database
+      .from('section_images')
+      .delete()
+      .eq('page_key', 'home')
+      .eq('section_key', targetId)
+      .eq('slot_key', slotKey)
+      .eq('position', position)
+    assertNoError(removeError)
+
+    const { error } = await admin.database.from('section_images').insert([
+      {
+        page_key: 'home',
+        section_key: targetId,
+        slot_key: slotKey,
+        position,
+        image_id: imageId,
+      },
+    ])
+    assertNoError(error)
+  } else if (targetType === 'collection') {
+    const { data: collectionRows, error: collectionError } = await admin.database
+      .from('collections')
+      .select('id')
+      .eq('id', targetId)
+      .eq('status', 'published')
+      .limit(1)
+    assertNoError(collectionError)
+
+    if (!collectionRows?.length) {
+      throw new Error('La colección seleccionada no está publicada o ya no existe.')
+    }
+
+    const { data: existingRows, error: existingError } = await admin.database
+      .from('collection_images')
+      .select('id')
+      .eq('collection_id', targetId)
+      .eq('image_id', imageId)
+      .limit(1)
+    assertNoError(existingError)
+
+    const { error } = existingRows?.[0]
+      ? await admin.database.from('collection_images').update({ position }).eq('id', existingRows[0].id)
+      : await admin.database.from('collection_images').insert([
+          { collection_id: targetId, image_id: imageId, position, is_cover: false },
+        ])
+    assertNoError(error)
+  } else if (targetType === 'project') {
+    const { data: projectRows, error: projectError } = await admin.database
+      .from('projects')
+      .select('id')
+      .eq('id', targetId)
+      .eq('status', 'published')
+      .limit(1)
+    assertNoError(projectError)
+
+    if (!projectRows?.length) {
+      throw new Error('El proyecto seleccionado no está publicado o ya no existe.')
+    }
+
+    const { data: existingRows, error: existingError } = await admin.database
+      .from('project_images')
+      .select('id')
+      .eq('project_id', targetId)
+      .eq('image_id', imageId)
+      .limit(1)
+    assertNoError(existingError)
+
+    const { error } = existingRows?.[0]
+      ? await admin.database.from('project_images').update({ position }).eq('id', existingRows[0].id)
+      : await admin.database.from('project_images').insert([
+          { project_id: targetId, image_id: imageId, position, is_cover: false },
+        ])
+    assertNoError(error)
+  } else {
+    throw new Error('El destino seleccionado no es válido.')
+  }
+
   refreshPublicContent()
   redirect(await getAdminPath('/images'))
 }

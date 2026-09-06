@@ -32,9 +32,16 @@ export type SectionImage = {
   images: CmsImage | CmsImage[] | null
 }
 
+export type PublicCollection = {
+  id: string
+  name: string
+  description: string
+  items: PortfolioItem[]
+}
+
 export type PublicSiteContent = {
   texts: Record<string, string>
-  portfolio: PortfolioItem[] | null
+  collections: PublicCollection[] | null
   sectionImages: SectionImage[]
 }
 
@@ -53,7 +60,7 @@ export async function getPublicSiteContent(): Promise<PublicSiteContent> {
   const client = publicClient()
 
   if (!client) {
-    return { texts: {}, portfolio: null, sectionImages: [] }
+    return { texts: {}, collections: null, sectionImages: [] }
   }
 
   try {
@@ -67,7 +74,7 @@ export async function getPublicSiteContent(): Promise<PublicSiteContent> {
         .limit(100),
       client.database
         .from('collections')
-        .select('id, name, sort_order, collection_images(position, images(id, url, thumbnail_url, alt_text, title, width, height))')
+        .select('id, name, description, sort_order, collection_images(position, images(id, url, thumbnail_url, alt_text, title, width, height))')
         .eq('status', 'published')
         .order('sort_order', { ascending: true })
         .limit(30),
@@ -79,6 +86,12 @@ export async function getPublicSiteContent(): Promise<PublicSiteContent> {
         .limit(50),
     ])
 
+    for (const result of [textsResult, collectionsResult, sectionImagesResult]) {
+      if (result.error) {
+        throw new Error(result.error.message)
+      }
+    }
+
     const texts = Object.fromEntries(
       ((textsResult.data ?? []) as Array<{ content_key: string; content: string }>).map((item) => [
         item.content_key,
@@ -86,13 +99,17 @@ export async function getPublicSiteContent(): Promise<PublicSiteContent> {
       ]),
     )
 
-    const portfolio = ((collectionsResult.data ?? []) as Array<{
+    const collections = ((collectionsResult.data ?? []) as Array<{
       id: string
       name: string
+      description: string
       collection_images: Array<{ position: number; images: CmsImage | CmsImage[] | null }>
     }>)
-      .flatMap((collection) =>
-        (collection.collection_images ?? [])
+      .map((collection) => ({
+        id: collection.id,
+        name: collection.name,
+        description: collection.description,
+        items: (collection.collection_images ?? [])
           .sort((a, b) => a.position - b.position)
           .map((association) => {
             const image = Array.isArray(association.images)
@@ -111,17 +128,17 @@ export async function getPublicSiteContent(): Promise<PublicSiteContent> {
               width: image.width ?? 1600,
               height: image.height ?? 1600,
             } satisfies PortfolioItem
-          }),
-      )
-      .filter((item): item is PortfolioItem => item !== null)
+          })
+          .filter((item): item is PortfolioItem => item !== null),
+      })) satisfies PublicCollection[]
 
     return {
       texts,
-      portfolio: portfolio.length > 0 ? portfolio : null,
+      collections,
       sectionImages: (sectionImagesResult.data ?? []) as SectionImage[],
     }
   } catch (error) {
     console.error('No fue posible cargar el contenido público desde InsForge.', error)
-    return { texts: {}, portfolio: null, sectionImages: [] }
+    return { texts: {}, collections: null, sectionImages: [] }
   }
 }
