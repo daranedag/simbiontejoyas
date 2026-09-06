@@ -8,7 +8,7 @@ import { createInsForgeAdminClient } from '../../../lib/insforge/server'
 export default async function ContentPage() {
   const user = await requireAdmin()
   const admin = createInsForgeAdminClient()
-  const [textsResult, imagesResult, sectionImagesResult, previewPath, collectionsPath, imageLibraryPath] = await Promise.all([
+  const [textsResult, imagesResult, sectionImagesResult, previewPath, collectionsPath, projectsPath, imageLibraryPath] = await Promise.all([
     admin.database
       .from('page_texts')
       .select('id, content_key, admin_label, content, content_format, status, section_key, sort_order')
@@ -28,6 +28,7 @@ export default async function ContentPage() {
       .limit(100),
     getAdminPath('/preview'),
     getAdminPath('/collections'),
+    getAdminPath('/projects'),
     getAdminPath('/images'),
   ])
 
@@ -51,6 +52,7 @@ export default async function ContentPage() {
         images={(imagesResult.data ?? []) as AdminImageOption[]}
         items={(textsResult.data ?? []) as PageText[]}
         previewPath={previewPath}
+        projectsPath={projectsPath}
         sectionImages={(sectionImagesResult.data ?? []) as SectionImage[]}
       />
     </AdminShell>

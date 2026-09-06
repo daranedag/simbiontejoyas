@@ -15,6 +15,7 @@ const previewTargets: Record<string, string> = {
   navigation: 'inicio',
   hero: 'inicio',
   work: 'obra',
+  projects: 'proyectos',
   about: 'sobre-mi',
   process: 'proceso',
   contact: 'contacto',

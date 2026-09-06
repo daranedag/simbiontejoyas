@@ -380,6 +380,102 @@ export async function detachImageFromCollection(formData: FormData) {
   redirect(await getAdminPath('/collections'))
 }
 
+export async function createProject(formData: FormData) {
+  await requireAdmin()
+  const name = requiredValue(formData, 'name')
+  const projectStatus = status(value(formData, 'status'))
+  const admin = createInsForgeAdminClient()
+  const { error } = await admin.database.from('projects').insert([
+    {
+      name,
+      slug: slug(value(formData, 'slug')) || slug(name),
+      description: value(formData, 'description'),
+      status: projectStatus,
+      sort_order: sortOrder(formData),
+      published_at: projectStatus === 'published' ? new Date().toISOString() : null,
+    },
+  ])
+
+  assertNoError(error)
+  refreshPublicContent()
+  redirect(await getAdminPath('/projects'))
+}
+
+export async function updateProject(formData: FormData) {
+  await requireAdmin()
+  const id = requiredValue(formData, 'id')
+  const name = requiredValue(formData, 'name')
+  const projectStatus = status(value(formData, 'status'))
+  const admin = createInsForgeAdminClient()
+  const { error } = await admin.database
+    .from('projects')
+    .update({
+      name,
+      slug: slug(value(formData, 'slug')) || slug(name),
+      description: value(formData, 'description'),
+      status: projectStatus,
+      sort_order: sortOrder(formData),
+      published_at: projectStatus === 'published' ? new Date().toISOString() : null,
+    })
+    .eq('id', id)
+
+  assertNoError(error)
+  refreshPublicContent()
+  redirect(await getAdminPath('/projects'))
+}
+
+export async function deleteProject(formData: FormData) {
+  await requireAdmin()
+  const admin = createInsForgeAdminClient()
+  const { error } = await admin.database.from('projects').delete().eq('id', requiredValue(formData, 'id'))
+
+  assertNoError(error)
+  refreshPublicContent()
+  redirect(await getAdminPath('/projects'))
+}
+
+export async function attachImageToProject(formData: FormData) {
+  await requireAdmin()
+  const projectId = requiredValue(formData, 'project_id')
+  const imageId = requiredValue(formData, 'image_id')
+  const isCover = value(formData, 'is_cover') === 'on'
+  const admin = createInsForgeAdminClient()
+
+  if (isCover) {
+    const { error } = await admin.database
+      .from('project_images')
+      .update({ is_cover: false })
+      .eq('project_id', projectId)
+    assertNoError(error)
+  }
+
+  const { error } = await admin.database.from('project_images').insert([
+    {
+      project_id: projectId,
+      image_id: imageId,
+      position: sortOrder(formData),
+      is_cover: isCover,
+    },
+  ])
+
+  assertNoError(error)
+  refreshPublicContent()
+  redirect(await getAdminPath('/projects'))
+}
+
+export async function detachImageFromProject(formData: FormData) {
+  await requireAdmin()
+  const admin = createInsForgeAdminClient()
+  const { error } = await admin.database
+    .from('project_images')
+    .delete()
+    .eq('id', requiredValue(formData, 'id'))
+
+  assertNoError(error)
+  refreshPublicContent()
+  redirect(await getAdminPath('/projects'))
+}
+
 export async function updateImage(formData: FormData) {
   await requireAdmin()
   const admin = createInsForgeAdminClient()

@@ -7,7 +7,7 @@ import { aboutSlides, heroImage, portfolio, processCards } from './data'
 import valdiviaFlag from './assets/valdivia-flag.svg'
 import headerIsotype from './assets/simbionte-header-isotype.png'
 import headerLogotype from './assets/simbionte-header-logotype.png'
-import type { PublicSiteContent, SectionImage } from '../lib/cms'
+import type { PublicImageGroup, PublicSiteContent, SectionImage } from '../lib/cms'
 
 const instagramUrl = 'https://www.instagram.com/simbiontejoyas/'
 const fallbackCollections = [{
@@ -19,6 +19,7 @@ const fallbackCollections = [{
 
 const defaultTexts: Record<string, string> = {
   'home.navigation.work': 'obra',
+  'home.navigation.projects': 'proyectos',
   'home.navigation.about': 'sobre mí',
   'home.navigation.process': 'proceso',
   'home.navigation.contact': 'contacto',
@@ -30,6 +31,9 @@ const defaultTexts: Record<string, string> = {
   'home.work.eyebrow': 'Obra',
   'home.work.title': 'Pequeños *paisajes*, *texturas orgánicas* y *metales* que se encuentran para habitar el *cuerpo*.',
   'home.work.gallery_hint': 'Selecciona una imagen para verla en detalle.',
+  'home.projects.eyebrow': 'Proyectos',
+  'home.projects.title': 'Obras que nacen del *encuentro*, la *investigación* y la *colaboración*.',
+  'home.projects.empty': 'Nuevos proyectos próximamente.',
   'home.about.eyebrow': 'Sobre mí',
   'home.about.title': 'Soy *Claudia Lagos*,\\\ncreadora de Simbionte Joyas.',
   'home.about.body': 'Vivo y creo en Valdivia, en la Región de Los Ríos, donde el bosque húmedo y la lluvia mantienen el paisaje en permanente transformación. Desde este territorio nacen las formas, materiales y memorias que dan vida a Simbionte.',
@@ -67,9 +71,84 @@ function formatEditorialText(text: string) {
   ))
 }
 
+function ImageGroupAccordion({
+  activeId,
+  emptyMessage,
+  galleryHint,
+  galleryId,
+  groups,
+  idPrefix,
+  onToggle,
+}: {
+  activeId: string | null
+  emptyMessage: string
+  galleryHint: string
+  galleryId: string
+  groups: PublicImageGroup[]
+  idPrefix: 'collection' | 'project'
+  onToggle: (id: string) => void
+}) {
+  return (
+    <div className="image-group-accordion">
+      {groups.map((group, index) => {
+        const expanded = group.id === activeId
+        const accessibleId = group.id.replace(/[^a-zA-Z0-9_-]/g, '-')
+        const headingId = `${idPrefix}-${accessibleId}-heading`
+        const panelId = `${idPrefix}-${accessibleId}-panel`
+
+        return (
+          <article className={`image-group${expanded ? ' is-expanded' : ''}`} key={group.id}>
+            <h3 id={headingId}>
+              <button
+                aria-controls={panelId}
+                aria-expanded={expanded}
+                className="image-group-toggle"
+                onClick={() => onToggle(group.id)}
+                type="button"
+              >
+                <span className="image-group-number">{String(index + 1).padStart(2, '0')}</span>
+                <span className="image-group-name">{group.name}</span>
+                <span className="image-group-count">
+                  {group.items.length} {group.items.length === 1 ? 'fotografía' : 'fotografías'}
+                </span>
+                <span aria-hidden="true" className="image-group-icon">{expanded ? '−' : '+'}</span>
+              </button>
+            </h3>
+
+            {expanded && (
+              <div aria-labelledby={headingId} className="image-group-panel" id={panelId} role="region">
+                {group.description && <p className="image-group-description">{group.description}</p>}
+                {group.items.length > 0 ? (
+                  <>
+                    <div className="portfolio-grid" id={galleryId}>
+                      {group.items.map((item, itemIndex) => (
+                        <a className="portfolio-item" href={item.image} data-pswp-width={item.width} data-pswp-height={item.height} key={item.id}>
+                          <img src={item.image} alt={item.alt} />
+                          <span className="item-number">{String(itemIndex + 1).padStart(2, '0')}</span>
+                          <span className="item-title">{item.title}</span>
+                        </a>
+                      ))}
+                    </div>
+                    <p className="gallery-hint">{galleryHint}</p>
+                  </>
+                ) : (
+                  <p className="collection-empty">{emptyMessage}</p>
+                )}
+              </div>
+            )}
+          </article>
+        )
+      })}
+    </div>
+  )
+}
+
 function App({ content, previewSection }: { content?: PublicSiteContent; previewSection?: string }) {
+  const collections = content?.collections ?? fallbackCollections
+  const projects = content?.projects ?? []
   const [menuOpen, setMenuOpen] = useState(false)
-  const [activeCollectionId, setActiveCollectionId] = useState('')
+  const [activeCollectionId, setActiveCollectionId] = useState<string | null>(collections[0]?.id ?? null)
+  const [activeProjectId, setActiveProjectId] = useState<string | null>(projects[0]?.id ?? null)
   const [slide, setSlide] = useState(0)
   const [processSlide, setProcessSlide] = useState(0)
 
@@ -86,23 +165,24 @@ function App({ content, previewSection }: { content?: PublicSiteContent; preview
     const image = sectionImageUrl(content?.sectionImages ?? [], 'process', 'card', index)
     return image ? { ...card, image: image.url, alt: image.alt || card.alt } : card
   })
-  const collections = content?.collections ?? fallbackCollections
-  const activeCollection = collections.find((collection) => collection.id === activeCollectionId) ?? collections[0]
-  const galleryItems = activeCollection?.items ?? []
+  const activeCollection = collections.find((collection) => collection.id === activeCollectionId)
+  const activeProject = projects.find((project) => project.id === activeProjectId)
 
   useEffect(() => {
-    if (!activeCollection) return
-
-    const lightbox = new PhotoSwipeLightbox({
-      gallery: '#portfolio-gallery',
-      children: 'a',
-      pswpModule: () => import('photoswipe'),
-      showHideAnimationType: 'zoom',
-      bgOpacity: 0.95,
+    const lightboxes = ['#portfolio-gallery', '#projects-gallery'].map((gallery) => {
+      const lightbox = new PhotoSwipeLightbox({
+        gallery,
+        children: 'a',
+        pswpModule: () => import('photoswipe'),
+        showHideAnimationType: 'zoom',
+        bgOpacity: 0.95,
+      })
+      lightbox.init()
+      return lightbox
     })
-    lightbox.init()
-    return () => lightbox.destroy()
-  }, [activeCollection?.id])
+
+    return () => lightboxes.forEach((lightbox) => lightbox.destroy())
+  }, [activeCollection?.id, activeProject?.id])
 
   const closeMenu = () => setMenuOpen(false)
   const previousSlide = () => setSlide((current) => (current - 1 + renderedAboutSlides.length) % renderedAboutSlides.length)
@@ -124,6 +204,7 @@ function App({ content, previewSection }: { content?: PublicSiteContent; preview
         </button>
         <nav className={menuOpen ? 'main-nav is-open' : 'main-nav'} aria-label="Navegación principal">
           <a href="#obra" onClick={closeMenu}>{text('home.navigation.work')}</a>
+          <a href="#proyectos" onClick={closeMenu}>{text('home.navigation.projects')}</a>
           <a href="#sobre-mi" onClick={closeMenu}>{text('home.navigation.about')}</a>
           <a href="#proceso" onClick={closeMenu}>{text('home.navigation.process')}</a>
           <a href="#contacto" onClick={closeMenu}>{text('home.navigation.contact')}</a>
@@ -148,50 +229,38 @@ function App({ content, previewSection }: { content?: PublicSiteContent; preview
             <p className="eyebrow">{text('home.work.eyebrow')}</p>
             <h2 id="portfolio-title">{formatEditorialText(text('home.work.title'))}</h2>
           </div>
-          {activeCollection ? (
-            <>
-              <div className="collection-menu">
-                <label htmlFor="collection-select">Colección</label>
-                <div className="collection-select-wrap">
-                  <select
-                    id="collection-select"
-                    onChange={(event) => setActiveCollectionId(event.target.value)}
-                    value={activeCollection.id}
-                  >
-                    {collections.map((collection) => (
-                      <option key={collection.id} value={collection.id}>{collection.name}</option>
-                    ))}
-                  </select>
-                  <span aria-hidden="true">↓</span>
-                </div>
-              </div>
-              <div className="collection-heading" key={activeCollection.id}>
-                <div>
-                  <p className="eyebrow">Colección seleccionada</p>
-                  <h3>{activeCollection.name}</h3>
-                  {activeCollection.description && <p>{activeCollection.description}</p>}
-                </div>
-                <span>{galleryItems.length} {galleryItems.length === 1 ? 'fotografía' : 'fotografías'}</span>
-              </div>
-              {galleryItems.length > 0 ? (
-                <>
-                  <div className="portfolio-grid" id="portfolio-gallery" key={activeCollection.id}>
-                    {galleryItems.map((item, index) => (
-                      <a className="portfolio-item" href={item.image} data-pswp-width={item.width} data-pswp-height={item.height} key={item.id}>
-                        <img src={item.image} alt={item.alt} />
-                        <span className="item-number">{String(index + 1).padStart(2, '0')}</span>
-                        <span className="item-title">{item.title}</span>
-                      </a>
-                    ))}
-                  </div>
-                  <p className="gallery-hint">{text('home.work.gallery_hint')}</p>
-                </>
-              ) : (
-                <p className="collection-empty">Esta colección todavía no tiene fotografías disponibles.</p>
-              )}
-            </>
+          {collections.length > 0 ? (
+            <ImageGroupAccordion
+              activeId={activeCollectionId}
+              emptyMessage="Esta colección todavía no tiene fotografías disponibles."
+              galleryHint={text('home.work.gallery_hint')}
+              galleryId="portfolio-gallery"
+              groups={collections}
+              idPrefix="collection"
+              onToggle={(id) => setActiveCollectionId((current) => current === id ? null : id)}
+            />
           ) : (
             <p className="collection-empty">No hay colecciones publicadas en este momento.</p>
+          )}
+        </section>
+
+        <section className={`projects-section${previewSection === 'projects' ? ' is-admin-preview-active' : ''}`} id="proyectos" aria-labelledby="projects-title">
+          <div className="section-heading">
+            <p className="eyebrow">{text('home.projects.eyebrow')}</p>
+            <h2 id="projects-title">{formatEditorialText(text('home.projects.title'))}</h2>
+          </div>
+          {projects.length > 0 ? (
+            <ImageGroupAccordion
+              activeId={activeProjectId}
+              emptyMessage="Este proyecto todavía no tiene fotografías disponibles."
+              galleryHint={text('home.work.gallery_hint')}
+              galleryId="projects-gallery"
+              groups={projects}
+              idPrefix="project"
+              onToggle={(id) => setActiveProjectId((current) => current === id ? null : id)}
+            />
+          ) : (
+            <p className="collection-empty">{text('home.projects.empty')}</p>
           )}
         </section>
 

@@ -16,9 +16,10 @@ async function count(table: string) {
 
 export default async function AdminHomePage() {
   const user = await requireAdmin()
-  const [texts, collections, images] = await Promise.all([
+  const [texts, collections, projects, images] = await Promise.all([
     count('page_texts'),
     count('collections'),
+    count('projects'),
     count('images'),
   ])
 
@@ -33,12 +34,13 @@ export default async function AdminHomePage() {
       <section className="admin-stat-grid" aria-label="Resumen de contenido">
         <Link href="/content"><strong>{texts}</strong><span>textos editables</span></Link>
         <Link href="/collections"><strong>{collections}</strong><span>colecciones</span></Link>
+        <Link href="/projects"><strong>{projects}</strong><span>proyectos</span></Link>
         <Link href="/images"><strong>{images}</strong><span>fotografías</span></Link>
       </section>
 
       <section className="admin-card admin-intro-card">
         <p className="admin-kicker">Cómo trabajar</p>
-        <h2>Primero carga y describe tus fotografías; luego asócialas a una colección o sección.</h2>
+        <h2>Primero carga y describe tus fotografías; luego asócialas a una colección, proyecto o sección.</h2>
         <p>El estado <b>Borrador</b> mantiene el contenido fuera del sitio. Al cambiarlo a <b>Publicado</b>, quedará disponible en la web.</p>
       </section>
     </AdminShell>

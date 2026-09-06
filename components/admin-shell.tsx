@@ -5,10 +5,11 @@ import { signOut } from '../app/admin/actions'
 import { getAdminPath } from '../lib/admin-routes'
 
 export async function AdminShell({ children, user, wide = false }: { children: ReactNode; user: AdminUser; wide?: boolean }) {
-  const [homePath, contentPath, collectionsPath, imagesPath] = await Promise.all([
+  const [homePath, contentPath, collectionsPath, projectsPath, imagesPath] = await Promise.all([
     getAdminPath('/'),
     getAdminPath('/content'),
     getAdminPath('/collections'),
+    getAdminPath('/projects'),
     getAdminPath('/images'),
   ])
 
@@ -20,6 +21,7 @@ export async function AdminShell({ children, user, wide = false }: { children: R
           <Link href={homePath}>Resumen</Link>
           <Link href={contentPath}>Editar sitio</Link>
           <Link href={collectionsPath}>Colecciones</Link>
+          <Link href={projectsPath}>Proyectos</Link>
           <Link href={imagesPath}>Fotografías</Link>
         </nav>
         <div className="admin-account">

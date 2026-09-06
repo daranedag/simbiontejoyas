@@ -37,6 +37,11 @@ const sectionDefinitions: SectionDefinition[] = [
     description: 'Título y texto que acompañan la galería principal.',
   },
   {
+    key: 'projects',
+    label: 'Proyectos',
+    description: 'Proyectos publicados que aparecen en la página principal.',
+  },
+  {
     key: 'about',
     label: 'Sobre mí',
     description: 'Presentación de Claudia y fotografías del carrusel.',
@@ -230,6 +235,7 @@ export function AdminSectionEditor({
   images,
   items,
   previewPath,
+  projectsPath,
   sectionImages,
 }: {
   collectionsPath: string
@@ -237,9 +243,12 @@ export function AdminSectionEditor({
   images: AdminImageOption[]
   items: PageText[]
   previewPath: string
+  projectsPath: string
   sectionImages: SectionImage[]
 }) {
-  const availableSections = sectionDefinitions.filter((section) => items.some((item) => item.section_key === section.key))
+  const availableSections = sectionDefinitions.filter(
+    (section) => section.key === 'projects' || items.some((item) => item.section_key === section.key),
+  )
   const [activeKey, setActiveKey] = useState(availableSections[0]?.key ?? 'hero')
   const [textValues, setTextValues] = useState(() => initialTextValues(items))
   const [textBaseline, setTextBaseline] = useState(() => initialTextValues(items))
@@ -327,7 +336,7 @@ export function AdminSectionEditor({
               type="button"
             >
               <span>{section.label}</span>
-              <small>{dirty ? 'Cambios sin publicar' : published ? 'Publicada' : 'En borrador'}</small>
+              <small>{section.key === 'projects' ? 'Administrar' : dirty ? 'Cambios sin publicar' : published ? 'Publicada' : 'En borrador'}</small>
             </button>
           )
         })}
@@ -419,19 +428,28 @@ export function AdminSectionEditor({
               </div>
             )}
 
-            <div className="admin-section-form-footer">
-              <p aria-live="polite" className={`admin-save-message is-${isDirty ? 'idle' : saveState.status}`}>
-                {isDirty ? 'Sólo se actualizará el sitio cuando publiques la sección.' : saveState.message || 'No hay cambios pendientes.'}
-              </p>
-              <div>
-                <button className="admin-button admin-button-secondary" disabled={!isDirty || pending} onClick={discardSectionChanges} type="button">
-                  Descartar cambios
-                </button>
-                <button className="admin-button" disabled={!isDirty || pending} type="submit">
-                  {pending ? 'Publicando…' : 'Publicar sección'}
-                </button>
+            {activeSection.key === 'projects' && (
+              <div className="admin-context-link">
+                <div><strong>Contenido de Proyectos</strong><span>Crea, ordena y publica los proyectos que se muestran en esta sección.</span></div>
+                <Link className="admin-button admin-button-secondary" href={projectsPath}>Administrar proyectos</Link>
               </div>
-            </div>
+            )}
+
+            {activeSection.key !== 'projects' && (
+              <div className="admin-section-form-footer">
+                <p aria-live="polite" className={`admin-save-message is-${isDirty ? 'idle' : saveState.status}`}>
+                  {isDirty ? 'Sólo se actualizará el sitio cuando publiques la sección.' : saveState.message || 'No hay cambios pendientes.'}
+                </p>
+                <div>
+                  <button className="admin-button admin-button-secondary" disabled={!isDirty || pending} onClick={discardSectionChanges} type="button">
+                    Descartar cambios
+                  </button>
+                  <button className="admin-button" disabled={!isDirty || pending} type="submit">
+                    {pending ? 'Publicando…' : 'Publicar sección'}
+                  </button>
+                </div>
+              </div>
+            )}
           </form>
         </section>
 

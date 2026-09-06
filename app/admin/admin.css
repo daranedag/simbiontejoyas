@@ -48,7 +48,7 @@
 .admin-page-heading h1, .admin-login h1 { font-size: clamp(2.8rem, 6vw, 5.4rem); letter-spacing: -.07em; line-height: .86; margin: 0 0 1.3rem; }
 .admin-page-heading > p:last-child { font-size: 1.06rem; line-height: 1.55; margin: 0; max-width: 36rem; }
 
-.admin-stat-grid { display: grid; gap: 1rem; grid-template-columns: repeat(3, 1fr); margin-bottom: 1rem; }
+.admin-stat-grid { display: grid; gap: 1rem; grid-template-columns: repeat(4, 1fr); margin-bottom: 1rem; }
 .admin-stat-grid a, .admin-card { background: var(--admin-panel); border: 1px solid var(--admin-line); border-radius: .4rem; }
 .admin-stat-grid a { display: grid; min-height: 10rem; padding: 1.5rem; }
 .admin-stat-grid a:hover { border-color: var(--admin-teal); transform: translateY(-2px); transition: .2s ease; }
