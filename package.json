@@ -9,6 +9,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@insforge/sdk": "^1.5.2",
     "next": "^16.3.1",
     "photoswipe": "^5.4.4",
     "react": "^19.1.0",
