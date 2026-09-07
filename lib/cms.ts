@@ -1,6 +1,9 @@
 import { createClient } from '@insforge/sdk'
 import type { PortfolioItem } from '../src/data'
 
+export const SITE_VISIBILITY_KEY = 'site.visibility.mode'
+export type SiteVisibilityMode = 'published' | 'construction'
+
 export type PageText = {
   id: string
   content_key: string
@@ -47,6 +50,10 @@ export type PublicSiteContent = {
   collections: PublicCollection[] | null
   projects: PublicProject[] | null
   sectionImages: SectionImage[]
+}
+
+export function getSiteVisibilityMode(texts: Record<string, string>): SiteVisibilityMode {
+  return texts[SITE_VISIBILITY_KEY] === 'construction' ? 'construction' : 'published'
 }
 
 type PublicImageAssociation = {

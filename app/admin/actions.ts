@@ -6,6 +6,7 @@ import { createAuthActions } from '@insforge/sdk/ssr'
 import { cookies } from 'next/headers'
 import { requireAdmin } from '../../lib/admin-auth'
 import { getAdminPath, getRequestOrigin } from '../../lib/admin-routes'
+import { SITE_VISIBILITY_KEY } from '../../lib/cms'
 import { createInsForgeAdminClient } from '../../lib/insforge/server'
 
 const statuses = new Set(['draft', 'published', 'archived'])
@@ -73,6 +74,48 @@ function assertNoError(error: { message?: string } | null) {
 function refreshPublicContent() {
   revalidatePath('/')
   revalidatePath('/admin')
+}
+
+export async function updateSiteVisibility(formData: FormData) {
+  await requireAdmin()
+
+  const mode = value(formData, 'mode')
+  if (mode !== 'published' && mode !== 'construction') {
+    throw new Error('El estado del sitio no es válido.')
+  }
+
+  const admin = createInsForgeAdminClient()
+  const { data: currentSetting, error: readError } = await admin.database
+    .from('page_texts')
+    .select('id')
+    .eq('content_key', SITE_VISIBILITY_KEY)
+    .eq('locale', 'es-CL')
+    .maybeSingle()
+
+  assertNoError(readError)
+
+  if (currentSetting) {
+    const { error } = await admin.database
+      .from('page_texts')
+      .update({ content: mode, status: 'published' })
+      .eq('id', currentSetting.id)
+    assertNoError(error)
+  } else {
+    const { error } = await admin.database.from('page_texts').insert([{
+      content_key: SITE_VISIBILITY_KEY,
+      locale: 'es-CL',
+      page_key: 'home',
+      section_key: 'settings',
+      admin_label: 'Visibilidad del sitio',
+      content: mode,
+      content_format: 'plain',
+      status: 'published',
+      sort_order: 0,
+    }])
+    assertNoError(error)
+  }
+
+  refreshPublicContent()
 }
 
 export async function signInWithGoogle() {
