@@ -41,7 +41,7 @@ button { font: inherit; }
 
 .construction-page { background: var(--moss); color: var(--paper); display: grid; isolation: isolate; min-height: 100svh; overflow: hidden; padding: clamp(1.5rem, 4vw, 4rem) clamp(1.25rem, 7vw, 8rem); position: relative; }
 .construction-header { align-self: start; }
-.construction-header img { display: block; filter: brightness(0) invert(1); height: auto; mix-blend-mode: screen; opacity: .92; width: clamp(14rem, 28vw, 24rem); }
+.construction-header img { display: block; filter: grayscale(1) invert(1) brightness(1.8) contrast(1.15); height: auto; mix-blend-mode: screen; opacity: .92; width: clamp(14rem, 28vw, 24rem); }
 .construction-content { align-self: center; max-width: 58rem; padding: clamp(4rem, 10vw, 8rem) 0; position: relative; z-index: 1; }
 .construction-content h1 { font-size: clamp(4.2rem, 10vw, 9rem); line-height: .84; margin-bottom: 2rem; max-width: 50rem; }
 .construction-content h1 em { color: var(--lichen-light); }
