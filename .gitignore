@@ -23,3 +23,7 @@ out/
 .roo
 .trae
 .windsurf
+
+docs/
+output/
+tmp/
